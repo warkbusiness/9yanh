@@ -1,1 +1,53 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>السلة</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+<header>
+    <div class="logo">نظام الصيانة - السلة</div>
+    <nav>
+        <a href="index.html">المنتجات</a>
+        <a href="cart.html">السلة</a>
+        <a href="javascript:void(0)" class="logout-link" onclick="logout()">تسجيل الخروج</a>
+    </nav>
+</header>
+
+<main>
+    <p class="welcome" id="welcomeUser"></p>
+    <h1>سلة المشتريات</h1>
+
+    <div class="table-wrapper">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>الصنف</th>
+                <th>الكمية</th>
+                <th>سعر الوحدة</th>
+                <th>الإجمالي</th>
+                <th>تحكم</th>
+            </tr>
+            </thead>
+            <tbody id="cartBody"></tbody>
+        </table>
+
+        <div id="cartEmpty" class="empty-state" style="display:none;">
+            السلة فارغة حالياً.
+        </div>
+
+        <p style="margin-top:10px;font-size:14px;">
+            المجموع الكلي: <b><span id="cartTotal">0</span> ريال</b>
+        </p>
+    </div>
+</main>
+
+<script src="assets/js/app.js"></script>
+<script>
+    initCartPage();
+</script>
+</body>
+</html>

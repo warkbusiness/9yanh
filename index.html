@@ -2,172 +2,30 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8" />
-    <title>قائمة المنتجات</title>
-
-    <style>
-        body {
-            font-family: "Segoe UI", Tahoma, sans-serif;
-            background: #f8f8f8;
-            margin: 0;
-            padding: 0;
-        }
-
-        header {
-            background: #0f172a;
-            color: #fff;
-            padding: 18px;
-            text-align: center;
-            font-size: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 10px;
-        }
-
-        .status {
-            margin-bottom: 15px;
-            color: #555;
-            font-size: 14px;
-        }
-
-        .items {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 16px;
-        }
-
-        .card {
-            background: #fff;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-
-        .title {
-            font-size: 17px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #222;
-        }
-
-        .desc {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-
-        .price {
-            font-size: 14px;
-            margin-bottom: 6px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-top: 5px;
-        }
-
-        .open {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .closed {
-            background: #fee2e2;
-            color: #b91c1c;
-        }
-
-        .error {
-            color: #b91c1c;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .reload {
-            background: #2563eb;
-            color: white;
-            padding: 7px 15px;
-            border: none;
-            font-size: 14px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
-    </style>
+    <title>الصفحة الرئيسية - المنتجات</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
 </head>
-
 <body>
-
 <header>
-    واجهة عرض المنتجات (Online)
+    <div class="logo">نظام الصيانة - المنتجات</div>
+    <nav>
+        <a href="index.html">المنتجات</a>
+        <a href="cart.html">السلة</a>
+        <a href="javascript:void(0)" class="logout-link" onclick="logout()">تسجيل الخروج</a>
+    </nav>
 </header>
 
-<div class="container">
-    <button class="reload" onclick="loadItems()">تحديث القائمة</button>
+<main>
+    <p class="welcome" id="welcomeUser"></p>
+    <h1>قائمة المنتجات</h1>
+    <p style="font-size:13px;color:#6b7280;">هذه منتجات تجريبية، لاحقاً تربطها بقاعدة بيانات حقيقية.</p>
 
-    <div id="status" class="status">يتم تحميل المنتجات...</div>
+    <div id="productsGrid" class="products-grid"></div>
+</main>
 
-    <div id="error" class="error" style="display:none;"></div>
-
-    <div id="items" class="items"></div>
-</div>
-
+<script src="assets/js/app.js"></script>
 <script>
-    const API_BASE = "https://nineyanh.onrender.com";
-
-    async function loadItems() {
-        const statusEl = document.getElementById("status");
-        const errorEl = document.getElementById("error");
-        const itemsEl = document.getElementById("items");
-
-        statusEl.textContent = "جاري التحميل...";
-        errorEl.style.display = "none";
-        itemsEl.innerHTML = "";
-
-        try {
-            const res = await fetch(`${API_BASE}/items`);
-            if (!res.ok) throw new Error("API Error");
-
-            const items = await res.json();
-
-            if (items.length === 0) {
-                statusEl.textContent = "لا يوجد منتجات حالياً.";
-                return;
-            }
-
-            statusEl.textContent = `عدد المنتجات: ${items.length}`;
-
-            items.forEach(item => {
-                const div = document.createElement("div");
-                div.className = "card";
-
-                div.innerHTML = `
-                    <div class="title">${item.title}</div>
-                    <div class="desc">${item.description || "بدون وصف"}</div>
-                    <div class="price"><b>السعر الابتدائي:</b> ${item.starting_price} ريال</div>
-                    <div class="price"><b>السعر الحالي:</b> ${item.current_price} ريال</div>
-                    <span class="badge ${item.is_active ? "open" : "closed"}">
-                        ${item.is_active ? "مزاد مفتوح" : "مزاد مغلق"}
-                    </span>
-                `;
-
-                itemsEl.appendChild(div);
-            });
-
-        } catch (err) {
-            errorEl.textContent = "تعذر الاتصال بـ API. تأكد أنه شغال على Render.";
-            errorEl.style.display = "block";
-            statusEl.textContent = "فشل التحميل.";
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", loadItems);
+    initIndexPage();
 </script>
-
 </body>
 </html>

@@ -18,12 +18,12 @@
     <h1>تسجيل الدخول</h1>
 
     <div class="form-card">
-        <form id="loginForm">
-            <label for="loginEmail">البريد الإلكتروني</label>
-            <input type="email" id="loginEmail" required />
+        <form id="loginForm" onsubmit="loginUser(event)">
+            <label for="login_email">البريد الإلكتروني</label>
+            <input type="email" id="login_email" required />
 
-            <label for="loginPassword">كلمة المرور</label>
-            <input type="password" id="loginPassword" required />
+            <label for="login_password">كلمة المرور</label>
+            <input type="password" id="login_password" required />
 
             <button type="submit" class="btn-primary">دخول</button>
         </form>
@@ -38,15 +38,5 @@
 </main>
 
 <script src="assets/js/app.js"></script>
-<script>
-    // لو هو مسجل مسبقاً نحوله للصفحة الرئيسية
-    const existingUser = getCurrentUser();
-    if (existingUser) {
-        window.location.href = "index.html";
-    } else {
-        initLoginPage();
-    }
-</script>
 </body>
 </html>
-

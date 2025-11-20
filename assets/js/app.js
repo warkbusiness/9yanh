@@ -1,307 +1,140 @@
-// =======================
-// إعدادات وحفظ بيانات بسيطة
-// =======================
+// ============================================
+// إعداد رابط Google Apps Script
+// ============================================
+const API_URL = "https://script.google.com/macros/s/AKfycbw2yeFfD4jc8m2CcW1YGIRrJ1s4C4UDND2bRnRO3LWPpQ0qjgB-QH5qLm0WDCgmjnDN/exec";
 
-const STORAGE_KEYS = {
-    USERS: "users",
-    CURRENT_USER: "currentUser",
-    CART_PREFIX: "cart_",
-};
+// ============================================
+// تسجيل مستخدم جديد
+// ============================================
+async function registerUser(event) {
+    event.preventDefault();
 
-// منتجات تجريبية (MVP) - لاحقاً تربطها بقاعدة بيانات أو API
-const PRODUCTS = [
-    { id: 1, name: "كابل كهرباء 2 ملم", description: "متر واحد، نحاس، معزول", price: 10 },
-    { id: 2, name: "لمبة LED 18W", description: "نور أبيض، موفرة للطاقة", price: 25 },
-    { id: 3, name: "قاطع 20 أمبير", description: "لدوائر الإنارة والمخارج", price: 35 },
-    { id: 4, name: "مفتاح جداري مزدوج", description: "تصميم عصري، لون أبيض", price: 15 },
-];
+    const name = document.getElementById("reg_name").value.trim();
+    const email = document.getElementById("reg_email").value.trim();
+    const password = document.getElementById("reg_password").value.trim();
 
-// ============ أدوات عامة ============
-
-function getUsers() {
-    const json = localStorage.getItem(STORAGE_KEYS.USERS) || "[]";
-    try {
-        return JSON.parse(json);
-    } catch {
-        return [];
+    if (!name || !email || !password) {
+        alert("الرجاء تعبئة جميع الحقول");
+        return;
     }
-}
 
-function saveUsers(users) {
-    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-}
+    const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "register",
+            name,
+            email,
+            password
+        }),
+    });
 
-function getCurrentUser() {
-    const json = localStorage.getItem(STORAGE_KEYS.CURRENT_USER);
-    if (!json) return null;
-    try {
-        return JSON.parse(json);
-    } catch {
-        return null;
-    }
-}
+    const result = await response.json();
 
-function setCurrentUser(user) {
-    if (!user) {
-        localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    if (result.status === "ok") {
+        localStorage.setItem("userName", name);
+        localStorage.setItem("userEmail", email);
+        window.location.href = "index.html";
     } else {
-        localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+        alert(result.message);
     }
 }
 
-function getCartKey() {
-    const user = getCurrentUser();
-    if (!user) return null;
-    return `${STORAGE_KEYS.CART_PREFIX}${user.email}`;
-}
+// ============================================
+// تسجيل الدخول
+// ============================================
+async function loginUser(event) {
+    event.preventDefault();
 
-function getCart() {
-    const key = getCartKey();
-    if (!key) return [];
-    const json = localStorage.getItem(key) || "[]";
-    try {
-        return JSON.parse(json);
-    } catch {
-        return [];
+    const email = document.getElementById("login_email").value.trim();
+    const password = document.getElementById("login_password").value.trim();
+
+    const response = await fetch(API_URL + `?action=login&email=${email}&password=${password}`);
+
+    const result = await response.json();
+
+    if (result.status === "ok") {
+        localStorage.setItem("userName", result.name);
+        localStorage.setItem("userEmail", email);
+        window.location.href = "index.html";
+    } else {
+        alert("بيانات الدخول غير صحيحة");
     }
 }
 
-function saveCart(cart) {
-    const key = getCartKey();
-    if (!key) return;
-    localStorage.setItem(key, JSON.stringify(cart));
-}
-
+// ============================================
+// تسجيل خروج
+// ============================================
 function logout() {
-    setCurrentUser(null);
+    localStorage.clear();
     window.location.href = "login.html";
 }
 
-// حمايـة الصفحات التي تتطلب تسجيل دخول
-function requireLogin() {
-    const user = getCurrentUser();
-    if (!user) {
+// ============================================
+// جلب المنتجات من Google Sheets
+// ============================================
+async function loadProducts() {
+    const response = await fetch(API_URL + "?action=getInventory");
+    const result = await response.json();
+
+    const container = document.getElementById("productsGrid");
+    container.innerHTML = "";
+
+    result.data.forEach((p) => {
+        container.innerHTML += `
+            <div class="product-card">
+                <h3>${p.name}</h3>
+                <p>${p.description}</p>
+                <p>السعر: ${p.price} ريال</p>
+                <p>المتبقي: ${p.qty}</p>
+                <button onclick="addToCart(${p.id})">إضافة للسلة</button>
+            </div>
+        `;
+    });
+}
+
+// ============================================
+// إضافة إلى السلة
+// ============================================
+async function addToCart(productId) {
+    const userEmail = localStorage.getItem("userEmail");
+
+    if (!userEmail) {
+        alert("يجب تسجيل الدخول أولاً");
         window.location.href = "login.html";
         return;
     }
-}
 
-// تحديث ترحيب المستخدم لو وجد العنصر
-function updateWelcome() {
-    const user = getCurrentUser();
-    const el = document.getElementById("welcomeUser");
-    if (el && user) {
-        el.textContent = `أهلاً، ${user.name}`;
-    }
-}
-
-// ============ منطق التسجيل ============
-
-function initRegisterPage() {
-    const form = document.getElementById("registerForm");
-    const msg = document.getElementById("registerMsg");
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const name = document.getElementById("regName").value.trim();
-        const email = document.getElementById("regEmail").value.trim().toLowerCase();
-        const password = document.getElementById("regPassword").value;
-
-        msg.textContent = "";
-        msg.className = "status";
-
-        if (!name || !email || !password) {
-            msg.textContent = "رجاءً تعبئة جميع الحقول.";
-            msg.classList.add("error");
-            return;
-        }
-
-        const users = getUsers();
-        if (users.find((u) => u.email === email)) {
-            msg.textContent = "هذا البريد مستخدم مسبقاً.";
-            msg.classList.add("error");
-            return;
-        }
-
-        const newUser = { name, email, password };
-        users.push(newUser);
-        saveUsers(users);
-        setCurrentUser({ name, email });
-
-        msg.textContent = "تم إنشاء الحساب بنجاح، سيتم تحويلك للصفحة الرئيسية...";
-        msg.classList.add("success");
-
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 1000);
-    });
-}
-
-// ============ منطق تسجيل الدخول ============
-
-function initLoginPage() {
-    const form = document.getElementById("loginForm");
-    const msg = document.getElementById("loginMsg");
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-        const password = document.getElementById("loginPassword").value;
-
-        msg.textContent = "";
-        msg.className = "status";
-
-        const users = getUsers();
-        const user = users.find((u) => u.email === email && u.password === password);
-
-        if (!user) {
-            msg.textContent = "بيانات الدخول غير صحيحة.";
-            msg.classList.add("error");
-            return;
-        }
-
-        setCurrentUser({ name: user.name, email: user.email });
-        msg.textContent = "تم تسجيل الدخول، سيتم تحويلك...";
-        msg.classList.add("success");
-
-        setTimeout(() => {
-            window.location.href = "index.html";
-        }, 800);
-    });
-}
-
-// ============ المنتجات والسلة ============
-
-function renderProducts() {
-    const grid = document.getElementById("productsGrid");
-    if (!grid) return;
-
-    grid.innerHTML = "";
-
-    PRODUCTS.forEach((p) => {
-        const div = document.createElement("div");
-        div.className = "product-card";
-
-        const html = `
-            <div class="product-title">${p.name}</div>
-            <div class="product-desc">${p.description || ""}</div>
-            <div class="product-price"><b>السعر:</b> ${p.price} ريال</div>
-            <button class="btn-primary" data-id="${p.id}">إضافة إلى السلة</button>
-        `;
-
-        div.innerHTML = html;
-        grid.appendChild(div);
+    const response = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            action: "addToCart",
+            email: userEmail,
+            productId: productId,
+            qty: 1
+        })
     });
 
-    grid.addEventListener("click", (e) => {
-        if (e.target.tagName === "BUTTON") {
-            const id = parseInt(e.target.getAttribute("data-id"), 10);
-            addToCart(id);
-        }
-    });
-}
+    const result = await response.json();
 
-function addToCart(productId) {
-    const cart = getCart();
-    const existing = cart.find((c) => c.productId === productId);
-    if (existing) {
-        existing.qty += 1;
+    if (result.status === "ok") {
+        alert("تمت الإضافة للسلة ✔");
+        loadProducts();
     } else {
-        cart.push({ productId, qty: 1 });
+        alert(result.message);
     }
-    saveCart(cart);
-    alert("تمت إضافة المنتج إلى السلة.");
 }
 
-function renderCart() {
-    const tbody = document.getElementById("cartBody");
-    const totalEl = document.getElementById("cartTotal");
-    const emptyEl = document.getElementById("cartEmpty");
+// ============================================
+// تهيئة صفحة index
+// ============================================
+function initIndexPage() {
+    const name = localStorage.getItem("userName");
 
-    if (!tbody || !totalEl || !emptyEl) return;
-
-    const cart = getCart();
-    tbody.innerHTML = "";
-
-    if (cart.length === 0) {
-        emptyEl.style.display = "block";
-        totalEl.textContent = "0";
+    if (!name) {
+        window.location.href = "login.html";
         return;
     }
 
-    emptyEl.style.display = "none";
-
-    let total = 0;
-
-    cart.forEach((item, index) => {
-        const product = PRODUCTS.find((p) => p.id === item.productId);
-        if (!product) return;
-
-        const row = document.createElement("tr");
-        const lineTotal = product.price * item.qty;
-        total += lineTotal;
-
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${product.name}</td>
-            <td>${item.qty}</td>
-            <td>${product.price} ريال</td>
-            <td>${lineTotal} ريال</td>
-            <td>
-                <button class="btn-secondary" data-action="inc" data-id="${product.id}">+</button>
-                <button class="btn-secondary" data-action="dec" data-id="${product.id}">-</button>
-                <button class="btn-danger" data-action="remove" data-id="${product.id}">حذف</button>
-            </td>
-        `;
-
-        tbody.appendChild(row);
-    });
-
-    totalEl.textContent = total.toString();
-
-    tbody.addEventListener("click", (e) => {
-        if (e.target.tagName !== "BUTTON") return;
-        const action = e.target.getAttribute("data-action");
-        const productId = parseInt(e.target.getAttribute("data-id"), 10);
-        handleCartAction(action, productId);
-    }, { once: true }); // once حتى لا نكرّر الـ listener
+    document.getElementById("welcomeUser").innerText = "مرحباً، " + name;
+    loadProducts();
 }
-
-function handleCartAction(action, productId) {
-    const cart = getCart();
-    const item = cart.find((c) => c.productId === productId);
-    if (!item) return;
-
-    if (action === "inc") {
-        item.qty += 1;
-    } else if (action === "dec") {
-        item.qty -= 1;
-        if (item.qty <= 0) {
-            const idx = cart.indexOf(item);
-            cart.splice(idx, 1);
-        }
-    } else if (action === "remove") {
-        const idx = cart.indexOf(item);
-        cart.splice(idx, 1);
-    }
-
-    saveCart(cart);
-    renderCart();
-}
-
-// ============ تهيئة الصفحات ============
-
-function initIndexPage() {
-    requireLogin();
-    updateWelcome();
-    renderProducts();
-}
-
-function initCartPage() {
-    requireLogin();
-    updateWelcome();
-    renderCart();
-}
-

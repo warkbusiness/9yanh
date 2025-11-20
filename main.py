@@ -10,10 +10,13 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# السماح بطلبات من أي واجهة Frontend في البداية
+# =======================
+#   CORS
+# =======================
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],      # يمكنك تضييقها لاحقاً على دومين معيّن
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,6 +25,7 @@ app.add_middleware(
 # =======================
 #  نماذج البيانات Models
 # =======================
+
 
 class User(BaseModel):
     id: int
@@ -32,6 +36,12 @@ class ItemCreate(BaseModel):
     title: str = Field(..., min_length=3, max_length=200)
     description: Optional[str] = None
     starting_price: float = Field(..., gt=0)
+
+
+class ItemUpdate(BaseModel):
+    # للتعديل الجزئي (عنوان ووصف فقط)
+    title: Optional[str] = Field(None, min_length=3, max_length=200)
+    description: Optional[str] = None
 
 
 class Item(ItemCreate):
@@ -55,7 +65,6 @@ class Bid(BaseModel):
 
 # =======================
 #  تخزين مؤقت In-Memory
-#  (لاحقاً نبدلها Database)
 # =======================
 
 fake_users_db: List[User] = [
@@ -87,6 +96,7 @@ def get_item_by_id(item_id: int) -> Optional[Item]:
 # =======================
 #     Endpoints
 # =======================
+
 
 @app.get("/health")
 def health_check():
@@ -139,6 +149,32 @@ def get_item(item_id: int):
     item = get_item_by_id(item_id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@app.put("/items/{item_id}", response_model=Item)
+def update_item(
+    item_id: int,
+    item_data: ItemUpdate,
+    x_user_id: int = Header(..., alias="X-User-Id"),
+):
+    """
+    تعديل منتج (العنوان / الوصف فقط) من قبل مالكه.
+    """
+    item = get_item_by_id(item_id)
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    # السماح فقط للمالك بالتعديل
+    if item.owner_id != x_user_id:
+        raise HTTPException(status_code=403, detail="Not allowed to edit this item")
+
+    if item_data.title is not None:
+        item.title = item_data.title
+
+    if item_data.description is not None:
+        item.description = item_data.description
+
     return item
 
 

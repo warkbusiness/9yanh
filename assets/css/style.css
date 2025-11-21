@@ -7,14 +7,14 @@ body {
   padding: 20px;
 }
 
-/* عناوين */
+/* العناوين */
 h1 {
   text-align: center;
   margin-bottom: 25px;
   color: #333;
 }
 
-/* الفورمات */
+/* الفورم */
 form {
   max-width: 350px;
   margin: 0 auto;
@@ -72,16 +72,39 @@ button:hover {
   margin: 5px 0;
 }
 
-.product button {
-  margin-top: 10px;
+/* زر السلة */
+.cart-btn {
+  display: inline-block;
+  background: #2196f3;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-bottom: 20px;
+  font-size: 16px;
 }
 
-/* السلة */
-#cart-items {
+.cart-btn:hover {
+  background: #0b7dda;
+}
+
+/* جدول السلة */
+.cart-table {
+  width: 100%;
   background: #fff;
-  padding: 20px;
   border-radius: 10px;
-  max-width: 400px;
-  margin: auto;
+  padding: 10px;
   box-shadow: 0 0 10px #ddd;
+  border-collapse: collapse;
+}
+
+.cart-table th,
+.cart-table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.total-row td {
+  font-weight: bold;
+  background: #f0f0f0;
 }

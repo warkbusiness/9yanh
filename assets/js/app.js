@@ -145,17 +145,24 @@ async function addToCart(productId) {
   let res = await fetch(url);
   let data = await res.json();
 
+  if (!data.success) {
+    alert(data.message || "تعذّرت إضافة المنتج إلى السلة");
+    return;
+  }
+
   alert(data.message);
 
-  if (data.success) {
-    document.getElementById(`qty-${productId}`).textContent = data.newQty;
+  // تحديث الكمية المعروضة في صفحة المنتجات (اختياري)
+  const qtyEl = document.getElementById(`qty-${productId}`);
+  if (qtyEl && typeof data.inventoryQty !== "undefined") {
+    qtyEl.textContent = data.inventoryQty;
   }
 }
 
 
 
 // =============================
-//     عرض السلة الحديثة
+//     تحميل السلة وعرضها
 // =============================
 async function loadCart() {
   requireLogin();
@@ -193,11 +200,18 @@ async function loadCart() {
     total += item.total;
 
     html += `
-      <tr>
+      <tr class="cart-item-row"
+          id="row-${item.productId}"
+          data-product-id="${item.productId}"
+          data-price="${item.price}">
         <td>${item.name}</td>
         <td>${item.price}</td>
-        <td>${item.qty}</td>
-        <td>${item.total}</td>
+        <td>
+          <button onclick="changeQty(${item.productId}, 'dec')">−</button>
+          <span id="cart-qty-${item.productId}" style="margin:0 10px;">${item.qty}</span>
+          <button onclick="changeQty(${item.productId}, 'inc')">+</button>
+        </td>
+        <td id="cart-total-${item.productId}">${item.total}</td>
       </tr>
     `;
   });
@@ -205,10 +219,78 @@ async function loadCart() {
   html += `
       <tr class="total-row">
         <td colspan="3">المجموع الكلي</td>
-        <td>${total}</td>
+        <td id="cart-grand-total">${total}</td>
       </tr>
     </table>
   `;
 
   box.innerHTML = html;
+}
+
+
+
+// =============================
+//    تغيير الكمية (+ / -)
+// =============================
+async function changeQty(productId, direction) {
+  let user = JSON.parse(localStorage.getItem("user"));
+  if (!user) return alert("سجّل دخولك أولاً");
+
+  let url = `${API_URL}?action=changeCartQty&email=${encodeURIComponent(
+    user.email
+  )}&productId=${productId}&direction=${direction}`;
+
+  let res = await fetch(url);
+  let data = await res.json();
+
+  if (!data.success) {
+    alert(data.message || "فشل تحديث الكمية");
+    return;
+  }
+
+  // لو تم حذف العنصر من السلة (الكمية صارت صفر)
+  if (data.removed) {
+    const row = document.getElementById(`row-${productId}`);
+    if (row) row.remove();
+    recalculateCartTotal();
+    return;
+  }
+
+  // تحديث الكمية في السلة
+  const qtySpan = document.getElementById(`cart-qty-${productId}`);
+  const row = document.getElementById(`row-${productId}`);
+
+  if (qtySpan && row) {
+    qtySpan.textContent = data.cartQty;
+
+    const price = Number(row.dataset.price);
+    const newLineTotal = price * data.cartQty;
+
+    const totalCell = document.getElementById(`cart-total-${productId}`);
+    if (totalCell) totalCell.textContent = newLineTotal;
+  }
+
+  // إعادة حساب مجموع السلة
+  recalculateCartTotal();
+}
+
+
+
+// =============================
+//  إعادة حساب إجمالي السلة
+// =============================
+function recalculateCartTotal() {
+  let rows = document.querySelectorAll("tr.cart-item-row");
+  let total = 0;
+
+  rows.forEach((row) => {
+    const price = Number(row.dataset.price);
+    const productId = row.dataset.productId;
+    const qtyEl = document.getElementById(`cart-qty-${productId}`);
+    const qty = qtyEl ? Number(qtyEl.textContent || "0") : 0;
+    total += price * qty;
+  });
+
+  const grand = document.getElementById("cart-grand-total");
+  if (grand) grand.textContent = total;
 }

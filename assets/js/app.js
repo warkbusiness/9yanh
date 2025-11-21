@@ -20,18 +20,21 @@ function handleRegister() {
 
     if (data.success) {
 
-      // تخزين بيانات المستخدم مباشرة بعد التسجيل
+      // تخزين بيانات المستخدم بعد التسجيل مباشرة
       localStorage.setItem("user", JSON.stringify({
         id: data.id,
         name: name,
         email: email
       }));
 
-      // تحويل مباشر إلى المنتجات
-      window.location.href = "index.html";
+      // تحويل بعد التنبيه
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 300);
     }
   });
 }
+
 
 
 // ========== تسجيل الدخول ==========
@@ -47,13 +50,20 @@ function handleLogin() {
     let res = await fetch(url);
     let data = await res.json();
 
-    if (!data.success) return alert("خطأ في تسجيل الدخول");
+    if (!data.success) {
+      alert("خطأ في تسجيل الدخول");
+      return;
+    }
 
-    // تخزين بيانات المستخدم
+    // تخزين المستخدم
     localStorage.setItem("user", JSON.stringify(data));
 
+    // تنبيه ثم تحويل
     alert("تم تسجيل الدخول");
-    window.location.href = "index.html";
+
+    setTimeout(() => {
+      window.location.href = "index.html";
+    }, 300);
   });
 }
 
@@ -136,4 +146,3 @@ function renderCart() {
     <p>أي عملية شراء محفوظة داخل CartLog.</p>
   `;
 }
-

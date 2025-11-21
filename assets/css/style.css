@@ -55,7 +55,7 @@ h1 {
   font-size: 24px;
 }
 
-/* ===== TOP ACTIONS (زر السلة) ===== */
+/* ===== TOP ACTIONS ===== */
 .top-actions {
   display: flex;
   justify-content: flex-end;
@@ -169,8 +169,43 @@ button:hover {
   padding: 12px;
   border-bottom: 1px solid #e5e7eb;
   text-align: center;
+  font-size: 16px;
 }
 
+/* ===== QTY BOX ( + / - ) ===== */
+.qty-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.qty-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #1a73e8;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.qty-btn:hover {
+  background: #155fc4;
+}
+
+.qty-number {
+  font-size: 18px;
+  font-weight: 700;
+  min-width: 28px;
+  text-align: center;
+  display: inline-block;
+}
+
+/* ===== TOTAL ROW ===== */
 .total-row td {
   background: #e9f0ff;
   font-weight: 700;
@@ -185,24 +220,4 @@ button:hover {
   .page-container {
     padding: 16px 12px 32px;
   }
-
-  .qty-btn {
-  display: inline-block;
-  width: auto;
-  min-width: 32px;
-  padding: 4px 10px;
-  margin: 0 2px;
-  font-size: 16px;
-  font-weight: 700;
-  background: #e5efff;
-  color: #155fc4;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-}
-
-.qty-btn:hover {
-  background: #d0e2ff;
-}
-
 }

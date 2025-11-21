@@ -16,7 +16,18 @@ function handleRegister() {
     let data = await res.json();
 
     alert(data.message);
-    if (data.success) window.location.href = "login.html";
+    if (data.success) {
+  // حفظ بيانات المستخدم مباشرة
+  localStorage.setItem("user", JSON.stringify({
+    id: data.id,
+    name: name,
+    email: email
+  }));
+
+  alert("تم إنشاء الحساب — سيتم تحويلك الآن");
+  window.location.href = "index.html";
+}
+
   });
 }
 

@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>Register</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <meta charset="UTF-8">
+  <title>إنشاء حساب</title>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-  <h1>إنشاء حساب جديد</h1>
+<!-- Navbar -->
+<div class="navbar">
+  <div class="right">
+    <a href="index.html">المنتجات</a>
+    <a href="cart.html">السلة</a>
+  </div>
+  <div class="left">
+    <a href="login.html">تسجيل الدخول</a>
+  </div>
+</div>
 
-  <form id="registerForm">
-    <input type="text" id="name" placeholder="الاسم" required />
-    <input type="email" id="email" placeholder="الايميل" required />
-    <input type="password" id="password" placeholder="كلمة المرور" required />
-    <button type="submit">إنشاء حساب</button>
-  </form>
+<h1>إنشاء حساب</h1>
 
-  <p>عندك حساب؟ <a href="login.html">تسجيل الدخول</a></p>
+<form id="registerForm">
+  <input type="text" id="name" placeholder="الاسم بالكامل" required>
+  <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+  <input type="password" id="password" placeholder="كلمة المرور" required>
+  <button type="submit">إنشاء الحساب</button>
+</form>
 
-  <script src="assets/js/app.js"></script>
-  <script>
-    handleRegister();
-  </script>
+<script src="assets/js/app.js"></script>
+<script>
+  handleRegister();
+</script>
 
 </body>
 </html>

@@ -1,31 +1,20 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8" />
-    <title>الصفحة الرئيسية - المنتجات</title>
-    <link rel="stylesheet" href="assets/css/style.css" />
+  <meta charset="UTF-8" />
+  <title>Store</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
-<header>
-    <div class="logo">نظام الصيانة - المنتجات</div>
-    <nav>
-        <a href="index.html">المنتجات</a>
-        <a href="cart.html">السلة</a>
-        <a href="javascript:void(0)" class="logout-link" onclick="logout()">تسجيل الخروج</a>
-    </nav>
-</header>
 
-<main>
-    <p class="welcome" id="welcomeUser"></p>
-    <h1>قائمة المنتجات</h1>
-    <p style="font-size:13px;color:#6b7280;">هذه منتجات تجريبية، لاحقاً تربطها بقاعدة بيانات حقيقية.</p>
+  <h1>المنتجات</h1>
 
-    <div id="productsGrid" class="products-grid"></div>
-</main>
+  <div id="product-list"></div>
 
-<script src="assets/js/app.js"></script>
-<script>
-    initIndexPage();
-</script>
+  <script src="assets/js/app.js"></script>
+  <script>
+    loadInventory();
+  </script>
+
 </body>
 </html>

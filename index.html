@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>Store</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <meta charset="UTF-8">
+  <title>المنتجات</title>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-  <h1>المنتجات</h1>
+<!-- Navbar -->
+<div class="navbar">
+  <div class="right">
+    <a href="index.html">المنتجات</a>
+    <a href="cart.html">السلة</a>
+  </div>
+  <div class="left">
+    <a href="#" onclick="logout()">تسجيل خروج</a>
+  </div>
+</div>
 
-  <!-- مهم جداً -->
-  <div id="product-list"></div>
+<h1>قائمة المنتجات</h1>
 
-  <script src="assets/js/app.js"></script>
-  <script>
-    loadInventory();
-  </script>
+<div id="product-list"></div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  loadInventory();
+</script>
 
 </body>
 </html>

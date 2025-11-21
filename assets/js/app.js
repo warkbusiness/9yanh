@@ -102,7 +102,6 @@ async function loadInventory() {
   requireLogin();
 
   let url = `${API_URL}?action=getInventory`;
-
   let res = await fetch(url);
   let data = await res.json();
 
@@ -113,21 +112,15 @@ async function loadInventory() {
     return;
   }
 
-  // إضافة زر السلة في الأعلى
-  list.innerHTML = `
-    <a href="cart.html" class="cart-btn">🛒 السلة</a>
-  `;
-
-  // بطاقات المنتجات الحديثة
-  list.innerHTML += data.items
+  list.innerHTML = data.items
     .map(
       (item) => `
       <div class="product">
         <h3>${item.name}</h3>
         <p>${item.description}</p>
-        <p><strong>${item.price} ريال</strong></p>
-        <p>المتوفر: <span id="qty-${item.id}">${item.qty}</span></p>
-        <button onclick="addToCart(${item.id})">إضافة للسلة</button>
+        <p>السعر: <strong>${item.price} ريال</strong></p>
+        <p>الكمية المتاحة: <span id="qty-${item.id}">${item.qty}</span></p>
+        <button onclick="addToCart(${item.id})">إضافة إلى السلة</button>
       </div>
     `
     )

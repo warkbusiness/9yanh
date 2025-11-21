@@ -201,11 +201,13 @@ async function loadCart() {
           data-price="${item.price}">
         <td>${item.name}</td>
         <td>${item.price}</td>
-        <td>
+
+        <td class="qty-box">
           <button class="qty-btn" onclick="changeQty(${item.productId}, 'dec')">−</button>
-          <span id="cart-qty-${item.productId}" style="margin:0 10px;">${item.qty}</span>
+          <span class="qty-number" id="cart-qty-${item.productId}">${item.qty}</span>
           <button class="qty-btn" onclick="changeQty(${item.productId}, 'inc')">+</button>
         </td>
+
         <td id="cart-total-${item.productId}">${item.total}</td>
       </tr>
     `;

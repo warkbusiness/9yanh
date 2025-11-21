@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8" />
-  <title>Login</title>
-  <link rel="stylesheet" href="assets/css/style.css" />
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول</title>
+  <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
-  <h1>تسجيل الدخول</h1>
+<!-- Navbar -->
+<div class="navbar">
+  <div class="right">
+    <a href="index.html">المنتجات</a>
+    <a href="cart.html">السلة</a>
+  </div>
+  <div class="left">
+    <a href="register.html">إنشاء حساب</a>
+  </div>
+</div>
 
-  <form id="loginForm">
-    <input type="email" id="email" placeholder="الايميل" required />
-    <input type="password" id="password" placeholder="كلمة المرور" required />
-    <button type="submit">دخول</button>
-  </form>
+<h1>تسجيل الدخول</h1>
 
-  <p>ما عندك حساب؟ <a href="register.html">سجّل الآن</a></p>
+<form id="loginForm">
+  <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+  <input type="password" id="password" placeholder="كلمة المرور" required>
+  <button type="submit">دخول</button>
+</form>
 
-  <script src="assets/js/app.js"></script>
-  <script>
-    handleLogin();
-  </script>
+<script src="assets/js/app.js"></script>
+<script>
+  handleLogin();
+</script>
 
 </body>
 </html>

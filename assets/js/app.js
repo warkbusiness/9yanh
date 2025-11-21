@@ -96,7 +96,7 @@ function handleLogin() {
 
 
 // =============================
-//     عرض المنتجات (Shopify)
+//     عرض المنتجات
 // =============================
 async function loadInventory() {
   requireLogin();
@@ -152,7 +152,6 @@ async function addToCart(productId) {
 
   alert(data.message);
 
-  // تحديث الكمية المعروضة في صفحة المنتجات (اختياري)
   const qtyEl = document.getElementById(`qty-${productId}`);
   if (qtyEl && typeof data.inventoryQty !== "undefined") {
     qtyEl.textContent = data.inventoryQty;
@@ -248,7 +247,6 @@ async function changeQty(productId, direction) {
     return;
   }
 
-  // لو تم حذف العنصر من السلة (الكمية صارت صفر)
   if (data.removed) {
     const row = document.getElementById(`row-${productId}`);
     if (row) row.remove();
@@ -256,7 +254,6 @@ async function changeQty(productId, direction) {
     return;
   }
 
-  // تحديث الكمية في السلة
   const qtySpan = document.getElementById(`cart-qty-${productId}`);
   const row = document.getElementById(`row-${productId}`);
 
@@ -270,7 +267,6 @@ async function changeQty(productId, direction) {
     if (totalCell) totalCell.textContent = newLineTotal;
   }
 
-  // إعادة حساب مجموع السلة
   recalculateCartTotal();
 }
 

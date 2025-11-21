@@ -20,17 +20,14 @@ function handleRegister() {
 
     if (data.success) {
 
-      // حفظ بيانات المستخدم
+      // حفظ بيانات المستخدم مباشرة
       localStorage.setItem("user", JSON.stringify({
         id: data.id,
         name: name,
         email: email
       }));
 
-      // ننتظر التنبيه ثم نعيد التوجيه
-      await new Promise((resolve) => {
-        resolve();
-      });
+      await new Promise((resolve) => resolve());
 
       window.location.href = "index.html";
     }
@@ -60,13 +57,11 @@ function handleLogin() {
     // حفظ بيانات المستخدم
     localStorage.setItem("user", JSON.stringify(data));
 
-    // نستخدم Promise لتجاوز حظر التحويل
     await new Promise((resolve) => {
       alert("تم تسجيل الدخول");
       resolve();
     });
 
-    // تحويل بعد التنبيه
     window.location.href = "index.html";
   });
 }
@@ -83,7 +78,7 @@ function requireLogin() {
 
 
 
-// ========== عرض المنتجات ==========
+// ========== جلب المنتجات ==========
 async function loadInventory() {
 
   requireLogin();
@@ -97,7 +92,11 @@ async function loadInventory() {
 
   let list = document.getElementById("product-list");
 
-  list.innerHTML = data.items
+  list.innerHTML = `
+    <a href="cart.html" class="cart-btn">🛒 الذهاب إلى السلة</a>
+  `;
+
+  list.innerHTML += data.items
     .map(
       (item) => `
       <div class="product">
@@ -139,10 +138,57 @@ async function addToCart(productId) {
 
 
 // ========== عرض السلة ==========
-function renderCart() {
+async function loadCart() {
+
   requireLogin();
 
-  document.getElementById("cart-items").innerHTML = `
-    <p>السلة محفوظة مباشرة في Google Sheets.</p>
+  let user = JSON.parse(localStorage.getItem("user"));
+
+  let url = `${API_URL}?action=getUserCart&email=${encodeURIComponent(user.email)}`;
+
+  let res = await fetch(url);
+  let data = await res.json();
+
+  if (!data.success || data.items.length === 0) {
+    document.getElementById("cart-container").innerHTML = `
+      <p>السلة فارغة.</p>
+    `;
+    return;
+  }
+
+  let items = data.items;
+  let total = 0;
+
+  let html = `
+    <table class="cart-table">
+      <tr>
+        <th>المنتج</th>
+        <th>السعر</th>
+        <th>الكمية</th>
+        <th>الإجمالي</th>
+      </tr>
   `;
+
+  items.forEach(item => {
+    total += item.total;
+
+    html += `
+      <tr>
+        <td>${item.name}</td>
+        <td>${item.price}</td>
+        <td>${item.qty}</td>
+        <td>${item.total}</td>
+      </tr>
+    `;
+  });
+
+  html += `
+      <tr class="total-row">
+        <td colspan="3">المجموع الكلي:</td>
+        <td>${total}</td>
+      </tr>
+    </table>
+  `;
+
+  document.getElementById("cart-container").innerHTML = html;
 }

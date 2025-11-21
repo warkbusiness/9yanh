@@ -1,4 +1,4 @@
-// رابط API ثابت
+// رابط API
 const API_URL = "https://script.google.com/macros/s/AKfycbw2yeFfD4jc8m2CcW1YGIRrJ1s4C4UDND2bRnRO3LWPpQ0qjgB-QH5qLm0WDCgmjnDN/exec";
 
 
@@ -20,17 +20,19 @@ function handleRegister() {
 
     if (data.success) {
 
-      // تخزين بيانات المستخدم بعد التسجيل مباشرة
+      // حفظ بيانات المستخدم
       localStorage.setItem("user", JSON.stringify({
         id: data.id,
         name: name,
         email: email
       }));
 
-      // تحويل بعد التنبيه
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 300);
+      // ننتظر التنبيه ثم نعيد التوجيه
+      await new Promise((resolve) => {
+        resolve();
+      });
+
+      window.location.href = "index.html";
     }
   });
 }
@@ -55,15 +57,17 @@ function handleLogin() {
       return;
     }
 
-    // تخزين المستخدم
+    // حفظ بيانات المستخدم
     localStorage.setItem("user", JSON.stringify(data));
 
-    // تنبيه ثم تحويل
-    alert("تم تسجيل الدخول");
+    // نستخدم Promise لتجاوز حظر التحويل
+    await new Promise((resolve) => {
+      alert("تم تسجيل الدخول");
+      resolve();
+    });
 
-    setTimeout(() => {
-      window.location.href = "index.html";
-    }, 300);
+    // تحويل بعد التنبيه
+    window.location.href = "index.html";
   });
 }
 
@@ -79,10 +83,9 @@ function requireLogin() {
 
 
 
-// ========== جلب المنتجات ==========
+// ========== عرض المنتجات ==========
 async function loadInventory() {
 
-  // حماية الصفحة
   requireLogin();
 
   let url = `${API_URL}?action=getInventory`;
@@ -111,7 +114,7 @@ async function loadInventory() {
 
 
 
-// ========== إضافة للسلة + تحديث الكمية ==========
+// ========== إضافة للسلة ==========
 async function addToCart(productId) {
 
   let user = JSON.parse(localStorage.getItem("user"));
@@ -135,14 +138,11 @@ async function addToCart(productId) {
 
 
 
-// ========== السلة ==========
+// ========== عرض السلة ==========
 function renderCart() {
   requireLogin();
 
-  let box = document.getElementById("cart-items");
-
-  box.innerHTML = `
-    <p>السلة تُسجَّل مباشرة عبر Google Sheets.</p>
-    <p>أي عملية شراء محفوظة داخل CartLog.</p>
+  document.getElementById("cart-items").innerHTML = `
+    <p>السلة محفوظة مباشرة في Google Sheets.</p>
   `;
 }

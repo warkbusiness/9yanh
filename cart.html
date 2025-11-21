@@ -7,14 +7,25 @@
 </head>
 <body>
 
-  <h1>سلة المشتريات</h1>
+<!-- Navbar -->
+<div class="navbar">
+  <div class="right">
+    <a href="index.html">المنتجات</a>
+    <a href="cart.html">السلة</a>
+  </div>
+  <div class="left">
+    <a href="#" onclick="logout()">تسجيل خروج</a>
+  </div>
+</div>
 
-  <div id="cart-container"></div>
+<h1>سلة المشتريات</h1>
 
-  <script src="assets/js/app.js"></script>
-  <script>
-    loadCart();
-  </script>
+<div id="cart-container"></div>
+
+<script src="assets/js/app.js"></script>
+<script>
+  loadCart();
+</script>
 
 </body>
 </html>

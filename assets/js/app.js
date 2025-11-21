@@ -1,72 +1,13 @@
 // رابط API
-const API_URL = "https://script.google.com/macros/s/AKfycbw2yeFfD4jc8m2CcW1YGIRrJ1s4C4UDND2bRnRO3LWPpQ0qjgB-QH5qLm0WDCgmjnDN/exec";
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbw2yeFfD4jc8m2CcW1YGIRrJ1s4C4UDND2bRnRO3LWPpQ0qjgB-QH5qLm0WDCgmjnDN/exec";
 
 
-// ========== تسجيل مستخدم ==========
-function handleRegister() {
-  document.getElementById("registerForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    let name = document.getElementById("name").value.trim();
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-
-    let url = `${API_URL}?action=register&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-
-    let res = await fetch(url);
-    let data = await res.json();
-
-    alert(data.message);
-
-    if (data.success) {
-
-      // حفظ بيانات المستخدم مباشرة
-      localStorage.setItem("user", JSON.stringify({
-        id: data.id,
-        name: name,
-        email: email
-      }));
-
-      await new Promise((resolve) => resolve());
-
-      window.location.href = "index.html";
-    }
-  });
+// ========== تسجيل الخروج ==========
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
 }
-
-
-
-// ========== تسجيل الدخول ==========
-function handleLogin() {
-  document.getElementById("loginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    let email = document.getElementById("email").value.trim();
-    let password = document.getElementById("password").value.trim();
-
-    let url = `${API_URL}?action=login&email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`;
-
-    let res = await fetch(url);
-    let data = await res.json();
-
-    if (!data.success) {
-      alert("خطأ في تسجيل الدخول");
-      return;
-    }
-
-    // حفظ بيانات المستخدم
-    localStorage.setItem("user", JSON.stringify(data));
-
-    await new Promise((resolve) => {
-      alert("تم تسجيل الدخول");
-      resolve();
-    });
-
-    window.location.href = "index.html";
-  });
-}
-
-
 
 // ========== حماية الصفحات ==========
 function requireLogin() {
@@ -78,9 +19,86 @@ function requireLogin() {
 
 
 
-// ========== جلب المنتجات ==========
-async function loadInventory() {
+// =============================
+//      تسجيل حساب جديد
+// =============================
+function handleRegister() {
+  document
+    .getElementById("registerForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
 
+      let name = document.getElementById("name").value.trim();
+      let email = document.getElementById("email").value.trim();
+      let password = document.getElementById("password").value.trim();
+
+      let url = `${API_URL}?action=register&name=${encodeURIComponent(
+        name
+      )}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(
+        password
+      )}`;
+
+      let res = await fetch(url);
+      let data = await res.json();
+
+      alert(data.message);
+
+      if (data.success) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ id: data.id, name, email })
+        );
+
+        await new Promise((resolve) => resolve());
+
+        window.location.href = "index.html";
+      }
+    });
+}
+
+
+
+// =============================
+//        تسجيل الدخول
+// =============================
+function handleLogin() {
+  document
+    .getElementById("loginForm")
+    .addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      let email = document.getElementById("email").value.trim();
+      let password = document.getElementById("password").value.trim();
+
+      let url = `${API_URL}?action=login&email=${encodeURIComponent(
+        email
+      )}&password=${encodeURIComponent(password)}`;
+
+      let res = await fetch(url);
+      let data = await res.json();
+
+      if (!data.success) {
+        alert("خطأ في تسجيل الدخول");
+        return;
+      }
+
+      localStorage.setItem("user", JSON.stringify(data));
+
+      await new Promise((resolve) => {
+        alert("تم تسجيل الدخول");
+        resolve();
+      });
+
+      window.location.href = "index.html";
+    });
+}
+
+
+
+// =============================
+//     عرض المنتجات (Shopify)
+// =============================
+async function loadInventory() {
   requireLogin();
 
   let url = `${API_URL}?action=getInventory`;
@@ -88,22 +106,27 @@ async function loadInventory() {
   let res = await fetch(url);
   let data = await res.json();
 
-  if (!data.success) return;
-
   let list = document.getElementById("product-list");
 
+  if (!data.success) {
+    list.innerHTML = "<p>حدث خطأ في تحميل المنتجات</p>";
+    return;
+  }
+
+  // إضافة زر السلة في الأعلى
   list.innerHTML = `
-    <a href="cart.html" class="cart-btn">🛒 الذهاب إلى السلة</a>
+    <a href="cart.html" class="cart-btn">🛒 السلة</a>
   `;
 
+  // بطاقات المنتجات الحديثة
   list.innerHTML += data.items
     .map(
       (item) => `
       <div class="product">
         <h3>${item.name}</h3>
         <p>${item.description}</p>
-        <p>السعر: ${item.price}</p>
-        <p>الكمية: <span id="qty-${item.id}">${item.qty}</span></p>
+        <p><strong>${item.price} ريال</strong></p>
+        <p>المتوفر: <span id="qty-${item.id}">${item.qty}</span></p>
         <button onclick="addToCart(${item.id})">إضافة للسلة</button>
       </div>
     `
@@ -113,9 +136,10 @@ async function loadInventory() {
 
 
 
-// ========== إضافة للسلة ==========
+// =============================
+//        إضافة للسلة
+// =============================
 async function addToCart(productId) {
-
   let user = JSON.parse(localStorage.getItem("user"));
   if (!user) return alert("سجّل دخولك أولاً");
 
@@ -137,22 +161,25 @@ async function addToCart(productId) {
 
 
 
-// ========== عرض السلة ==========
+// =============================
+//     عرض السلة الحديثة
+// =============================
 async function loadCart() {
-
   requireLogin();
 
   let user = JSON.parse(localStorage.getItem("user"));
 
-  let url = `${API_URL}?action=getUserCart&email=${encodeURIComponent(user.email)}`;
+  let url = `${API_URL}?action=getUserCart&email=${encodeURIComponent(
+    user.email
+  )}`;
 
   let res = await fetch(url);
   let data = await res.json();
 
+  let box = document.getElementById("cart-container");
+
   if (!data.success || data.items.length === 0) {
-    document.getElementById("cart-container").innerHTML = `
-      <p>السلة فارغة.</p>
-    `;
+    box.innerHTML = `<p style="text-align:center;">السلة فارغة</p>`;
     return;
   }
 
@@ -160,16 +187,16 @@ async function loadCart() {
   let total = 0;
 
   let html = `
-    <table class="cart-table">
-      <tr>
-        <th>المنتج</th>
-        <th>السعر</th>
-        <th>الكمية</th>
-        <th>الإجمالي</th>
-      </tr>
+  <table class="cart-table">
+    <tr>
+      <th>المنتج</th>
+      <th>السعر</th>
+      <th>الكمية</th>
+      <th>الإجمالي</th>
+    </tr>
   `;
 
-  items.forEach(item => {
+  items.forEach((item) => {
     total += item.total;
 
     html += `
@@ -184,11 +211,11 @@ async function loadCart() {
 
   html += `
       <tr class="total-row">
-        <td colspan="3">المجموع الكلي:</td>
+        <td colspan="3">المجموع الكلي</td>
         <td>${total}</td>
       </tr>
     </table>
   `;
 
-  document.getElementById("cart-container").innerHTML = html;
+  box.innerHTML = html;
 }
